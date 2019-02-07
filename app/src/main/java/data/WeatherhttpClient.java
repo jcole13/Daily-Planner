@@ -18,6 +18,10 @@ public class WeatherhttpClient {
         HttpURLConnection connection = null;
         InputStream inputstream = null;
 
+        //only works for USA
+        if(!place.substring(place.indexOf('&')-2,place.indexOf('&')).toLowerCase().equals("us")) place = "New York,us&units=metric";
+
+
         try {
 
             //Establish Connection
