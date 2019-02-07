@@ -12,13 +12,14 @@ import model.Weather;
  * Created by Jared Cole on 11/27/2016.
  */
 
+//p
 public class JSONWeatherParser {
     public static Weather getWeather(String data){
         Weather weather = new Weather();
         //create JsonObject from data
 
         try {
-            JSONObject jsonObject = new JSONObject(data);
+            JSONObject jsonObject = new JSONObject(data); //the string is formatted as a JSON, so easiest to pull primities like this
             Place place = new Place();
 
             //get the coordinates obj

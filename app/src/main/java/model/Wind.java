@@ -3,7 +3,7 @@ package model;
 /**
  * Created by Jared Cole on 11/27/2016.
  */
-
+//hold wind data to be accessed later
 public class Wind {
     private float speed;
     private float deg;

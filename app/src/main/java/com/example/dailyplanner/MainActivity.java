@@ -66,10 +66,10 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); //load what was on page before closed
         setContentView(R.layout.activity_main);
 
-        weatherFont = Typeface.createFromAsset(getAssets(), "fonts/weather.ttf");
+        weatherFont = Typeface.createFromAsset(getAssets(), "fonts/weather.ttf"); //special symbols for weather icons
         cityName = (TextView) findViewById(R.id.cityText);
         iconView = (TextView) findViewById(R.id.thumbnailIcon);
         temp = (TextView) findViewById(R.id.tempText);
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         units = "metric";
         //Database is accessed
 
-        mHelper = new TaskDbHelper(this);
+        mHelper = new TaskDbHelper(this); //DB used to save tasks for later
         mTaskListView = (ListView) findViewById(R.id.list_todo);
 
         //list UI is changed on startup
@@ -110,17 +110,18 @@ public class MainActivity extends AppCompatActivity {
     public void toMetric(View view){
         CityPreferences cityPreferences = new CityPreferences(MainActivity.this);
         String newCity = cityPreferences.getCity();
-        renderWeatherData(newCity, "metric");
+        renderWeatherData(newCity, "metric"); //re-render
         units = "metric";
 
     }
 
-    private class WeatherTask extends AsyncTask<String, Void, Weather> {
+
+    private class WeatherTask extends AsyncTask<String, Void, Weather> { //runs in the background
         @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
 
         //when the task is finished executing
-        protected void onPostExecute(Weather weather) {
+        protected void onPostExecute(Weather weather) { //after the data is collected
             super.onPostExecute(weather);
 
             DateFormat df = DateFormat.getTimeInstance();
@@ -137,11 +138,13 @@ public class MainActivity extends AppCompatActivity {
 
             cityName.setText(weather.place.getCity() + ", " + weather.place.getCountry());
             if(units.equals("metric")) {
-                temp.setText(temperatureformat + "℃");
+                temp.setText(temperatureformat + "℃"); //celsius
                 String num = temp.toString();
                 //int parser = Integer.parseInt(num.substring(0, num.length() - 1));
                 int parser = (int) Double.parseDouble(temperatureformat);
                 String weathercode = weather.currentcondition.getIcon();
+                //checking through weather codes, pretty mundane
+                //Although these if/else statements are basically AI
                 if (parser < 10) {
                     if (weathercode.substring(0, 2).equals("13"))
                         sentenceView.setText("Go for a heavy jacket, or something that has a hood and long pants. Maybe a hat and gloves as well");
@@ -169,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             else{
-                temp.setText(temperatureformat + "℉" );
+                temp.setText(temperatureformat + "℉" ); //farenheight
                 String num = temp.toString();
                 //int parser = Integer.parseInt(num.substring(0, num.length() - 1));
                 int parser = (int) Double.parseDouble(temperatureformat);
@@ -212,7 +215,8 @@ public class MainActivity extends AppCompatActivity {
 
             String icon = "";
             String code = weather.currentcondition.getIcon();
-            if(weather.currentcondition.getIcon().charAt(2) == 'n'){
+            if(weather.currentcondition.getIcon().charAt(2) == 'n'){ //checking for what code to update the big icon
+                //these are in the special font
                 if(code.substring(0, 2).equals("13")){
                     icon= getApplicationContext().getString(R.string.weather_snowy);
                 }
@@ -266,8 +270,7 @@ public class MainActivity extends AppCompatActivity {
             //Log.v("Description: ", weather.currentcondition.getDescription());
             //Log.v("Icon Code: ", weather.currentcondition.getIcon());
 
-
-            return weather;
+            return weather; //all collected weather data which holds instances of each type of weather that I am collecting
 
 
         }
@@ -282,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
 
     //First condition opens up menu for adding an item to todolist
-    //
+    //second changes city
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_add_task) {
@@ -297,16 +300,16 @@ public class MainActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             String task = String.valueOf(taskEditText.getText());
                             //updateUI();
-                            SQLiteDatabase db = mHelper.getWritableDatabase();
-                            //Utilizes arrayadapte to write to database
+                            SQLiteDatabase db = mHelper.getWritableDatabase(); //sets up place to store tasks
+                            //Utilizes arrayadapter to write to database
                             ContentValues values = new ContentValues();
                             values.put(TaskContract.TaskEntry.COL_TASK_TITLE, task);
                             db.insertWithOnConflict(TaskContract.TaskEntry.TABLE,
                                     null,
                                     values,
                                     SQLiteDatabase.CONFLICT_REPLACE);
-                            db.close();
-                            updateUI();
+                            db.close(); //close
+                            updateUI(); //refresh the tasks
                         }
                     })
                     .setNegativeButton("Cancel", null)
@@ -322,26 +325,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
+    //as it is called, refreshes the screen (from the DB)
     private void updateUI() {
-        ArrayList<String> taskList = new ArrayList<>();
+        ArrayList<String> taskList = new ArrayList<>(); //start as an arraylist for middleman
         SQLiteDatabase db = mHelper.getReadableDatabase();
         Cursor cursor = db.query(TaskContract.TaskEntry.TABLE,
                 new String[]{TaskContract.TaskEntry._ID, TaskContract.TaskEntry.COL_TASK_TITLE},
                 null, null, null, null, null);
         while (cursor.moveToNext()) {
             int idx = cursor.getColumnIndex(TaskContract.TaskEntry.COL_TASK_TITLE);
-            taskList.add(cursor.getString(idx));
+            taskList.add(cursor.getString(idx)); //add to arraylist each task in DB
         }
 
         //Writes to the screen
 
-        if (mAdapter == null) {
+        if (mAdapter == null) { //create a new object if null
             mAdapter = new ArrayAdapter<>(this,
                     R.layout.item_todo,
                     R.id.task_title,
                     taskList);
             mTaskListView.setAdapter(mAdapter);
-        } else {
+        } else { //add the task to existing mAdapter
             mAdapter.clear();
             mAdapter.addAll(taskList);
             mAdapter.notifyDataSetChanged();
@@ -351,6 +355,7 @@ public class MainActivity extends AppCompatActivity {
         db.close();
     }
     @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
+    //when done is clicked, the task is removed from database, cleared on updateUI()
     public void deleteTask(View view) {
         View parent = (View) view.getParent();
         TextView taskTextView = (TextView) parent.findViewById(R.id.task_title);
@@ -363,13 +368,14 @@ public class MainActivity extends AppCompatActivity {
         updateUI();
     }
     //if weather is selected on the drop down menu
+    //inputdialog is where to type in new city in form (City,US)
     private void showInputDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Change City");
 
         final EditText cityInput = new EditText(MainActivity.this);
         cityInput.setInputType(InputType.TYPE_CLASS_TEXT);
-        cityInput.setHint("Chicago,US");
+        cityInput.setHint("Chicago,US"); //this is the only form that works
         builder.setView(cityInput);
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
@@ -380,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                CityPreferences cityPreferences = new CityPreferences(MainActivity.this);
+                CityPreferences cityPreferences = new CityPreferences(MainActivity.this); //updates the city, refreshes the weatherdata
                 cityPreferences.setCity(cityInput.getText().toString());
 
                 String newcity = cityPreferences.getCity();
@@ -389,7 +395,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        builder.show();
+        builder.show(); //boilerplate to show the input dialog
     }
 }
 

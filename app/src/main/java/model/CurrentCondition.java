@@ -4,6 +4,7 @@ package model;
  * Created by Jared Cole on 11/27/2016.
  */
 
+//holds current condition, as given by weather API, and puts together values
 public class CurrentCondition {
     private int weatherId;
     private String condition;

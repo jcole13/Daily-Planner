@@ -4,6 +4,8 @@ package model;
  * Created by Jared Cole on 11/27/2016.
  */
 
+
+//lots of values for place, only necessary apparantly with API that is bought
 public class Place {
     private float lon;
     private float lat;

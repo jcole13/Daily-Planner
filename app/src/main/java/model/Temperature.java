@@ -3,7 +3,7 @@ package model;
 /**
  * Created by Jared Cole on 11/27/2016.
  */
-
+//tracking temperature
 public class Temperature {
     private double temp;
     private float minTemp;
